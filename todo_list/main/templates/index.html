@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+{% block content %}
+   
+   {{ls.name}}
+   
+   <br/>
+   <br/>
+
+   {% for item in items %}
+        {{item.text}}
+        <br/>
+        <br/>
+   {% endfor %}
+
+
+{% endblock content %}
