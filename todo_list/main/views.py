@@ -1,9 +1,12 @@
 from django.shortcuts import render, redirect, reverse, get_object_or_404
 from django.http.response import HttpResponse
 from .models import ToDoList, Item
+from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.decorators import login_required
 
-# Create your views here.
 
+
+@login_required
 def index_view(request, pk):
     ls = ToDoList.objects.get(id = pk)
     items = Item.objects.filter(todo_list=ls)
@@ -11,10 +14,13 @@ def index_view(request, pk):
 
 
 
+@login_required
 def home(request):
     ls = ToDoList.objects.all()
     return render(request, 'home.html', {'ls': ls})
 
+
+@login_required
 def new_todo_list(request):
     
     if request.method == 'POST':
@@ -30,6 +36,7 @@ def new_todo_list(request):
     return redirect('home')
 
 
+
 def update_item(request, page_pk, item_pk):
     
     item = get_object_or_404(Item, pk=item_pk)
@@ -40,6 +47,8 @@ def update_item(request, page_pk, item_pk):
     return redirect(url)
 
 
+
+@login_required
 def delete_item(request, page_pk, item_pk):
     
     item = get_object_or_404(Item, pk=item_pk)
@@ -50,6 +59,7 @@ def delete_item(request, page_pk, item_pk):
 
 
 
+@login_required
 def new_item(request, list_pk):
 
     if request.method == 'POST':
@@ -65,6 +75,7 @@ def new_item(request, list_pk):
     return redirect(url)
 
 
+@login_required
 def delete_list(request, list_pk):
 
     ls = get_object_or_404(ToDoList, pk=list_pk)
@@ -73,5 +84,45 @@ def delete_list(request, list_pk):
     return redirect('home')
 
 
-#def hello(request):
-#    return HttpResponse("hello the app is working correctly!")
+def login_user(request, massage):
+
+    if massage == 'empty':
+
+        if request.method == 'POST':
+            username = request.POST.get('username')
+            password = request.POST.get('password')
+
+            print(username)
+            print(password)
+
+            user = authenticate(request, username=username, password=password)
+
+
+
+            if user is not None:
+                login(request, user)
+                return redirect('home')
+
+            else:
+                return render(request, 'login.html', {'msg': "login was unsuccessful, maybe the username or the password isn't correct!"})        
+
+        return render(request, 'login.html', {'msg': massage})
+
+
+    else:
+        return render(request, 'login.html', {'msg': massage})
+
+
+
+
+
+def logout_user(request):
+    logout(request)
+    return redirect('login', massage='empty')
+
+
+
+
+
+
+
