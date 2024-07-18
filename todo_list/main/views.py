@@ -8,15 +8,25 @@ from django.contrib.auth.decorators import login_required
 
 @login_required
 def index_view(request, pk):
-    ls = ToDoList.objects.get(id = pk)
-    items = Item.objects.filter(todo_list=ls)
-    return render(request, 'index.html', {'ls': ls, 'items': items})
+    
+    try:
+        ls = ToDoList.objects.get(pk = pk)
+    except ToDoList.DoesNotExist:
+        return redirect('home')
 
+    
+    if(request.user == ls.user):
+
+        items = Item.objects.filter(todo_list=ls)
+        return render(request, 'index.html', {'ls': ls, 'items': items})
+
+    else:
+        return redirect('home')
 
 
 @login_required
 def home(request):
-    ls = ToDoList.objects.all()
+    ls = ToDoList.objects.filter(user = request.user)
     return render(request, 'home.html', {'ls': ls})
 
 
@@ -27,7 +37,7 @@ def new_todo_list(request):
         #print(request.POST.get('name'))
         name = request.POST.get("name")
         if name:
-            new_todo_list = ToDoList(name=name)
+            new_todo_list = ToDoList(name=name, user=request.user)
             new_todo_list.save()
         else:
             return HttpResponse("Name field cannot be empty", status=400)
@@ -37,6 +47,7 @@ def new_todo_list(request):
 
 
 
+@login_required
 def update_item(request, page_pk, item_pk):
     
     item = get_object_or_404(Item, pk=item_pk)
