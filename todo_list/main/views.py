@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, reverse, get_object_or_404
 from django.http.response import HttpResponse
 from .models import ToDoList, Item
 
@@ -30,6 +30,47 @@ def new_todo_list(request):
     return redirect('home')
 
 
+def update_item(request, page_pk, item_pk):
+    
+    item = get_object_or_404(Item, pk=item_pk)
+    item.complete = not item.complete  # Toggle the boolean field
+    item.save()
+
+    url = reverse('index', args=[page_pk])
+    return redirect(url)
+
+
+def delete_item(request, page_pk, item_pk):
+    
+    item = get_object_or_404(Item, pk=item_pk)
+    item.delete()
+    
+    url = reverse('index', args=[page_pk])
+    return redirect(url)
+
+
+
+def new_item(request, list_pk):
+
+    if request.method == 'POST':
+        text_body = request.POST.get("text")
+        if text_body:
+            ls = ToDoList.objects.get(id = list_pk)
+            new_item = Item(text=text_body, todo_list=ls)
+            new_item.save()
+        else:
+            return HttpResponse("Name field cannot be empty", status=400)
+
+    url = reverse('index', args=[list_pk])
+    return redirect(url)
+
+
+def delete_list(request, list_pk):
+
+    ls = get_object_or_404(ToDoList, pk=list_pk)
+    ls.delete()
+
+    return redirect('home')
 
 
 #def hello(request):

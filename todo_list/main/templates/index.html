@@ -1,17 +1,98 @@
 {% extends 'base.html' %}
 
+
+{% block styling %}
+    <style>
+        .line{
+            display: flex;
+            align-items: center;
+        }
+        
+        .outer-line{
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .outer-line i{
+            font-size: 45px;
+            transition: 0.5s;
+        }
+        .outer-line i:hover{
+            font-size: 50px;
+        }
+        .line i{
+            font-size: 45px;
+            transition: 0.5s;
+        }
+        .line i:hover{
+            color: #C7C4C4;
+            font-size: 50px;
+        }
+        .my-container{
+            gap: 2rem;
+        }
+    </style>
+{% endblock styling %}
+
+
+
 {% block content %}
    
-   {{ls.name}}
-   
-   <br/>
-   <br/>
 
-   {% for item in items %}
-        {{item.text}}
-        <br/>
-        <br/>
-   {% endfor %}
+   <div class="container mt-5">
+        <div class="my-container">
+            
+            <div class="card my-card text-white p-4">
+                <h3 class="card-title mb-5">
+                    {{ls.name}}:
+                </h3>
+                
+                    {% for item in items %}
+                    
+                    <div class="outer-line">
+                    <div class="line">
+                        {% if item.complete %}
+                            <a href={% url 'update_item' ls.pk item.pk %}><i class='bx bx-checkbox-checked' style='color:#f1ecec' ></i></a>
+                            <h4 class="p-1 col"><del>-{{item.text}}-</del></h4>    
+                        {%else%}
+                            <a href={% url 'update_item' ls.pk item.pk %} ><i class='bx bx-checkbox' style='color:#f1ecec'  ></i></a> 
+                            <h4 class="p-1 col">-{{item.text}}-</h4>
+                        {% endif %}
+                        </div> 
+                        <a href={% url 'delete_item' ls.pk item.pk %}>
+                            <i class='bx bx-x' style='color:#c50e0e'  ></i>
+                        </a>   
+                        </div>
+                    {% endfor %}
+
+
+
+            </div>
+
+
+            <div class="col card my-card p-3 text-white">
+                <h2>adding a new todo list:</h2>
+                <form action={% url 'new_item' ls.pk %} method="post">
+                    {% csrf_token %}
+                    <div class="mb-3 mt-2">
+                    <label for="exampleInputEmail1" class="form-label">enter the new item below:</label>
+                    <input type="text" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" name="text">
+                    </div>
+                    <button type="submit" class="btn btn-warning mt-3">Add</button>
+                </form> 
+            </div
+
+
+
+        </div>
+   </div> 
+
+   <div class="container">
+        <a href="{% url 'home' %}" class="btn btn-warning mt-3">
+            back to home
+        </a>
+   </div>
+   
 
 
 {% endblock content %}

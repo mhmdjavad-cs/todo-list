@@ -1,14 +1,30 @@
 {% extends 'base.html' %}
 
+{% block styling %}
+   <style>
+        li{
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        li i{
+            font-size: 45px;
+            transition: 0.5s;
+        }
+        li i:hover{
+            font-size: 50px;
+        }
+   </style> 
+{% endblock styling %}
 
 {% block content %}
    
     <br/>
 
     <div class="container">
-        <div class="row gap-4">
+        <div class="my-container gap-4">
             
-            <div class="col-8 card my-card text-white p-4">
+            <div class="todo-list col-8 card my-card text-white p-4">
                 <h3 class="card-title">
                     the available todo lists!
                 </h3>
@@ -18,6 +34,11 @@
                             <a href={% url 'index' item.pk %} class="h5">
                                -{{item.name}}-
                             </a>
+                            <div> 
+                                <a href={% url 'delete_list' item.pk %}>
+                                    <i class='bx bx-x' style='color:#c50e0e'  ></i>
+                                </a>   
+                            </div>
                         </li>
                     {% endfor %}
                 </ul> 
