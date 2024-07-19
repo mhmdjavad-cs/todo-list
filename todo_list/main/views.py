@@ -3,6 +3,8 @@ from django.http.response import HttpResponse
 from .models import ToDoList, Item
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
+from django.contrib import messages
+from django.contrib.auth.models import User
 
 
 
@@ -95,33 +97,25 @@ def delete_list(request, list_pk):
     return redirect('home')
 
 
-def login_user(request, massage):
-
-    if massage == 'empty':
-
-        if request.method == 'POST':
-            username = request.POST.get('username')
-            password = request.POST.get('password')
-
-            print(username)
-            print(password)
-
-            user = authenticate(request, username=username, password=password)
+def login_user(request):
 
 
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+    
+        user = authenticate(request, username=username, password=password)
 
-            if user is not None:
-                login(request, user)
-                return redirect('home')
+        if user is not None:
+            login(request, user)
+            return redirect('home')
 
-            else:
-                return render(request, 'login.html', {'msg': "login was unsuccessful, maybe the username or the password isn't correct!"})        
+        else:
+            messages.error(request, 'user does not exist!')
+            return render(request, 'login.html', {})        
+    
 
-        return render(request, 'login.html', {'msg': massage})
-
-
-    else:
-        return render(request, 'login.html', {'msg': massage})
+    return render(request, 'login.html', {})
 
 
 
@@ -129,11 +123,42 @@ def login_user(request, massage):
 
 def logout_user(request):
     logout(request)
-    return redirect('login', massage='empty')
+    messages.success(request, 'successfully logged out!')
+    return redirect('login')
 
 
 
+def signup_user(request):
+
+    if request.method == 'POST':
+
+        try:
+            username = request.POST.get('username')
+            email = request.POST.get('email')
+            password1 = request.POST.get('password1')
+            password2 = request.POST.get('password2')
+
+            if password1 == password2:
+                
+                if User.objects.filter(username=username).exists():
+                    messages.error(request, 'Username already taken')
+                elif User.objects.filter(email=email).exists():
+                    messages.error(request, 'Email already taken')
+                else:
+                    user = User.objects.create_user(username=username, email=email, password=password1)
+                    user.save()
+                    login(request, user)
+                    return redirect('home')
+
+            else:
+                messages.error(request, 'passwords didn\'t match, please try again!')
+                return redirect('signup')
+
+        except:
+            messages.error(request, 'please fill the required fields!')
+            return redirect('signup')
 
 
+    return render(request, 'signup.html', {})
 
 
